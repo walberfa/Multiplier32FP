@@ -11,6 +11,4 @@ module multiplier32FP (
     output logic underflow_o        // flag - indica que o resultado gerou underflow
 );
 
-
-    
 endmodule
