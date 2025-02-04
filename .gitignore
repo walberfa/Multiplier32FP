@@ -4,3 +4,9 @@
 /waves.shm
 *.key
 /xcelium.d
+*.v
+.rs_cinovador.tstamp
+fv/
+*.cmd
+library/
+*.txt
