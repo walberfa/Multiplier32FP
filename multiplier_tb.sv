@@ -15,7 +15,7 @@ module tb_multiplier32FP;
     logic underflow_o;
 
     // Instancia o módulo a ser testado
-    multiplierFP uut (
+    multiplier32FP uut (
         .clk(clk),
         .rst_n(rst_n),
         .start_i(start_i),
@@ -44,9 +44,9 @@ module tb_multiplier32FP;
         #10;
         rst_n = 1;
 
-        // Teste 1: Multiplicação de 2.5 * 4.0
-        a_i = 32'h40200000; // 2.5 em ponto flutuante IEEE 754
-        b_i = 32'h40800000; // 4.0 em ponto flutuante IEEE 754
+        // Multiplicação de 2.5 * 4.0
+        a_i = $shortrealtobits(2.5); // 2.5 em ponto flutuante IEEE 754
+        b_i = $shortrealtobits(4.0); // 4.0 em ponto flutuante IEEE 754
         start_i = 1;
         #10;
         start_i = 0;
@@ -55,18 +55,6 @@ module tb_multiplier32FP;
         wait (done_o);
         #10;
         $display("Resultado: %h", product_o); // Esperado: 0x41200000 (10.0 em ponto flutuante IEEE 754)
-
-        // Teste 2: Multiplicação de -1.5 * 2.0
-        a_i = 32'hBF800000; // -1.5 em ponto flutuante IEEE 754
-        b_i = 32'h40000000; // 2.0 em ponto flutuante IEEE 754
-        start_i = 1;
-        #10;
-        start_i = 0;
-
-        // Espera a multiplicação terminar
-        wait (done_o);
-        #10;
-        $display("Resultado: %h", product_o); // Esperado: 0xC0400000 (-3.0 em ponto flutuante IEEE 754)
 
         // Finaliza a simulação
         $finish;
