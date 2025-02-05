@@ -19,6 +19,7 @@ logic [31:0] product_o_ff;
 
 typedef enum logic [1:0] {
     IDLE,
+    VERIFY_NAN,
     CALCULATE,
     DONE
 } states;
@@ -57,44 +58,43 @@ always_comb begin
         case(state)
             IDLE: begin
                 if(start_i) begin
-                    next_state = CALCULATE;
+                    next_state = VERIFY_NAN;
                 end 
             end
-            CALCULATE: begin
+            VERIFY_NAN: begin
                 // Extração
                 sign_a = a_i[31];
                 sign_b = b_i[31];
                 exp_a = a_i[30:23];
                 exp_b = b_i[30:23];
 
-                if(exp_a == 8'b11111111) begin
-                    if(a_i[22:0] != 0) begin
-                        nan_o = 1;
-                        product_o = 0;
-                        next_state = DONE;
-                    end else begin
-                        infinit_o = 1;
-                        next_state = DONE;
-                    end
+                next_state = CALCULATE;
+
+                // Verificação se o operando 'a' é NaN e Infinito
+                if (exp_a == 8'b11111111 && a_i[22:0] != 0|| exp_b == 8'b11111111 && b_i[22:0] != 0) begin
+                    nan_o = 1;
+                    product_o = 32'b0;
+                    next_state = DONE;
                 end
-
-                if(exp_b == 8'b11111111) begin
-                    if(b_i[22:0] != 0) begin
-                        nan_o = 1;
-                        product_o = 0;
-                        next_state = DONE;
-                    end else begin
-                        infinit_o = 1;
-                    end
-                end 
-
+            end
+            CALCULATE: begin               
+                // Mantissa
                 mant_a = {1'b1, a_i[22:0]};
                 mant_b = {1'b1, b_i[22:0]};
+
+                // Verificação se é não normalizado "zero sujo"
+                if (a_i[30:23] == 8'b0 && a_i[22:0] != 0)
+                    mant_a = {1'b0, a_i[22:0]};
+                if (b_i[30:23] == 8'b0 && b_i[22:0] != 0)
+                    mant_b = {1'b0, b_i[22:0]};
 
                 // Multiplicação
                 sign_o = sign_a ^ sign_b;
                 exp_o = exp_a + exp_b - 127;
                 mant_o = mant_a * mant_b;
+
+                if (mant_a[23] == 0 ^ mant_b[23] == 0) exp_o = exp_a + exp_b - 126;
+                if (mant_a[23] == 0 && mant_b[23] == 0) exp_o = 8'b0;
 
                 // Normalização
                 if (mant_o[47]) begin
@@ -104,7 +104,32 @@ always_comb begin
 
                 // Empacotamento
                 product_o = {sign_o, exp_o, mant_o[45:23]};
+
+                // Verificação de underflow
+                if (mant_a[23] == 0 && mant_b[23] == 0) begin
+                    if (product_o == 32'b0) underflow_o = 1;
+                end
+                
+                // Verificação se um dos operandos é zero
+                if(a_i[30:0] == 31'b0 || b_i[30:0] == 31'b0) begin
+                    product_o[30:0] = 31'b0;
+                    product_o[31] = sign_o;
+                end
+
+                // Verificação se um dos operandos é infinito
+                if (exp_a == 8'b11111111 && a_i[22:0] == 0|| exp_b == 8'b11111111 && b_i[22:0] == 0) begin
+                    infinit_o = 1;
+                    product_o = {sign_o, 8'b11111111, 23'b0};
+                end
+
+                // Verificação de overflow (FALTA AJEITAR)
+                if (exp_o == 8'b11111111) begin
+                    overflow_o = 1;
+                    product_o = {sign_o, 8'b11111111, 23'b0};
+                end
+
                 next_state = DONE;
+                
             end
             DONE: begin
                 done_o = 1;
