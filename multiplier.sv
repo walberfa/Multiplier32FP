@@ -13,6 +13,7 @@ module multiplier32FP (
 
 logic sign_a, sign_b, sign_o;
 logic [7:0] exp_a, exp_b, exp_o;
+logic [8:0] exp_e;
 logic [23:0] mant_a, mant_b;
 logic [47:0] mant_o;
 logic [31:0] product_o_ff;
@@ -70,7 +71,7 @@ always_comb begin
 
                 next_state = CALCULATE;
 
-                // Verificação se o operando 'a' é NaN e Infinito
+                // Verificação se os operandos são Not a Number
                 if (exp_a == 8'b11111111 && a_i[22:0] != 0|| exp_b == 8'b11111111 && b_i[22:0] != 0) begin
                     nan_o = 1;
                     product_o = 32'b0;
@@ -90,11 +91,13 @@ always_comb begin
 
                 // Multiplicação
                 sign_o = sign_a ^ sign_b;
-                exp_o = exp_a + exp_b - 127;
+                exp_e = exp_a + exp_b - 127;
                 mant_o = mant_a * mant_b;
 
-                if (mant_a[23] == 0 ^ mant_b[23] == 0) exp_o = exp_a + exp_b - 126;
-                if (mant_a[23] == 0 && mant_b[23] == 0) exp_o = 8'b0;
+                if (mant_a[23] == 0 ^ mant_b[23] == 0) exp_e = exp_a + exp_b - 126;
+                if (mant_a[23] == 0 && mant_b[23] == 0) exp_e = 8'b0;
+
+                exp_o = exp_e[7:0];
 
                 // Normalização
                 if (mant_o[47]) begin
@@ -120,16 +123,12 @@ always_comb begin
                 if (exp_a == 8'b11111111 && a_i[22:0] == 0|| exp_b == 8'b11111111 && b_i[22:0] == 0) begin
                     infinit_o = 1;
                     product_o = {sign_o, 8'b11111111, 23'b0};
-                end
-
-                // Verificação de overflow (FALTA AJEITAR)
-                if (exp_o == 8'b11111111) begin
+                end else if (exp_e > 9'b011111110) begin // Verificação de overflow
                     overflow_o = 1;
-                    product_o = {sign_o, 8'b11111111, 23'b0};
+                    product_o = 32'h7FFFFFFF;
                 end
-
-                next_state = DONE;
                 
+                next_state = DONE;
             end
             DONE: begin
                 done_o = 1;
