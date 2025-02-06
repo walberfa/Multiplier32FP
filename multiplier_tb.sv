@@ -46,8 +46,8 @@ module tb_multiplier32FP;
 
         // Teste 1: Multiplicação de 2.5 * 4.0
         #100;
-        a_i = $shortrealtobits(2.5);
-        b_i = $shortrealtobits(4.0);
+        a_i = $shortrealtobits(25.0);
+        b_i = $shortrealtobits(10.0);
         start_i = 1;
         #10;
         start_i = 0;
@@ -159,7 +159,7 @@ module tb_multiplier32FP;
         // Espera a multiplicação terminar
         wait (done_o);
         #10;
-        $display("Resultado: hexa 0x%h decimal %f", product_o, $bitstoshortreal(product_o)); // Esperado: 0x7F800000 (infinito, overflow)
+        $display("Resultado: hexa 0x%h decimal %f", product_o, $bitstoshortreal(product_o)); // Esperado: 0x7FFFFFFF (infinito, overflow)
 
         // Finaliza a simulação
         $finish;

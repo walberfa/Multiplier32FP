@@ -1,12 +1,15 @@
-*.log
+*.log*
 *.history
 .simvision
 /waves.shm
+*.shm
 *.key
 /xcelium.d
 *.v
 .rs_cinovador.tstamp
 fv/
-*.cmd
+*.cmd*
 library/
 *.txt
+*.vcd
+*.sdf*

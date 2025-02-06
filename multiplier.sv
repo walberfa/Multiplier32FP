@@ -109,7 +109,7 @@ always_comb begin
                 product_o = {sign_o, exp_o, mant_o[45:23]};
 
                 // Verificação de underflow
-                if (mant_a[23] == 0 && mant_b[23] == 0) begin
+                if (exp_a != ~8'b0 && mant_a != 0 && exp_b != ~8'b0 && mant_b != 0) begin
                     if (product_o == 32'b0) underflow_o = 1;
                 end
                 
@@ -122,10 +122,10 @@ always_comb begin
                 // Verificação se um dos operandos é infinito
                 if (exp_a == 8'b11111111 && a_i[22:0] == 0|| exp_b == 8'b11111111 && b_i[22:0] == 0) begin
                     infinit_o = 1;
-                    product_o = {sign_o, 8'b11111111, 23'b0};
+                    product_o = {sign_o, 31'h7FFFFFFF};
                 end else if (exp_e > 9'b011111110) begin // Verificação de overflow
                     overflow_o = 1;
-                    product_o = 32'h7FFFFFFF;
+                    product_o = {sign_o, 31'h7FFFFFFF};
                 end
                 
                 next_state = DONE;
