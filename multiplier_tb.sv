@@ -1,3 +1,12 @@
+/*
+Testbench para testar o módulo multiplier32FP.sv
+Autor: Walber Florencio
+Data: 6 Fev 2025
+Projeto Físico
+*/
+
+`timescale 1ns/10ps
+
 module tb_multiplier32FP;
 
     // Sinais de entrada

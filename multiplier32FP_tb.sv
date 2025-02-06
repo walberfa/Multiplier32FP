@@ -1,3 +1,12 @@
+/*
+Testbench para testar o módulo multiplier32FP.sv
+Autor: Lucas Pedrosa
+Data: 6 Fev 2025
+Projeto Físico
+*/
+
+`timescale 1ns/10ps
+
 module multiplier32FP_tb;
     logic [31:0] data [0:29][2:0]; 
     logic [31:0] a [0:29];

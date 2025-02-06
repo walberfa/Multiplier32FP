@@ -1,3 +1,12 @@
+/*
+RTL do Multiplicador para ponto flutuante IEEE 754 de 32 bits
+Autor: Walber Florencio
+Data: 6 Fev 2025
+Projeto Físico
+*/
+
+`timescale 1ns/10ps
+
 module multiplier32FP (
     input logic clk,                // clock geral do circuito
     input logic rst_n,              // reset geral - ativo em baixo
