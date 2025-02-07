@@ -20,12 +20,12 @@ module multiplier32FP (
     output logic underflow_o        // flag - indica que o resultado gerou underflow
 );
 
-logic sign_a, sign_b, sign_o;
-logic [7:0] exp_a, exp_b, exp_o;
-logic [8:0] exp_e;
-logic [23:0] mant_a, mant_b;
-logic [47:0] mant_o;
-logic [31:0] product_o_ff;
+logic sign_a, sign_b, sign_o;       // indica se o número é positivo (0) ou negativo (1)
+logic [7:0] exp_a, exp_b, exp_o;    // expoente do número
+logic [8:0] exp_e;                  // expoente com bit extra para cálculo
+logic [23:0] mant_a, mant_b;        // mantissa das entradas
+logic [47:0] mant_o;                // mantissa do resultado
+logic [31:0] product_o_ff;          // registrador para o resultado
 
 typedef enum logic [1:0] {
     IDLE,
@@ -103,8 +103,8 @@ always_comb begin
                 exp_e = exp_a + exp_b - 127;
                 mant_o = mant_a * mant_b;
 
-                if (mant_a[23] == 0 ^ mant_b[23] == 0) exp_e = exp_a + exp_b - 126;
-                if (mant_a[23] == 0 && mant_b[23] == 0) exp_e = 8'b0;
+                if (mant_a[23] == 0 ^ mant_b[23] == 0) exp_e = exp_a + exp_b - 126; // Verificação se um dos operandos é não normalizado
+                if (mant_a[23] == 0 && mant_b[23] == 0) exp_e = 8'b0;               // Verificação se os dois operandos são não normalizados
 
                 exp_o = exp_e[7:0];
 
@@ -129,7 +129,7 @@ always_comb begin
                 end
 
                 // Verificação se um dos operandos é infinito
-                if (exp_a == 8'b11111111 && a_i[22:0] == 0|| exp_b == 8'b11111111 && b_i[22:0] == 0) begin
+                if (exp_a == 8'b11111111 && a_i[22:0] == 23'b0|| exp_b == 8'b11111111 && b_i[22:0] == 23'b0) begin
                     infinit_o = 1;
                     product_o = {sign_o, 31'h7FFFFFFF};
                 end else if (exp_e > 9'b011111110) begin // Verificação de overflow

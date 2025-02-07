@@ -13,3 +13,4 @@ library/
 *.txt
 *.vcd
 *.sdf*
+*.diag
