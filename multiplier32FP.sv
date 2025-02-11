@@ -22,7 +22,7 @@ module multiplier32FP (
 
 logic sign_a, sign_b, sign_o;       // indica se o número é positivo (0) ou negativo (1)
 logic [7:0] exp_a, exp_b, exp_o;    // expoente do número
-logic [8:0] exp_e;                  // expoente com bit extra para cálculo
+logic [9:0] exp_e;                  // expoente com bit extra para cálculo
 logic [23:0] mant_a, mant_b;        // mantissa das entradas
 logic [47:0] mant_o;                // mantissa do resultado
 logic [31:0] product_o_ff;          // registrador para o resultado
@@ -106,22 +106,19 @@ always_comb begin
                 if (mant_a[23] == 0 ^ mant_b[23] == 0) exp_e = exp_a + exp_b - 126; // Verificação se um dos operandos é não normalizado
                 if (mant_a[23] == 0 && mant_b[23] == 0) exp_e = 8'b0;               // Verificação se os dois operandos são não normalizados
 
-                exp_o = exp_e[7:0];
-
                 // Normalização
                 if (mant_o[47]) begin
                     mant_o = mant_o >> 1;
-                    exp_o = exp_o + 1;
+                    exp_e = exp_e + 1;
                 end
 
+                exp_o = exp_e[7:0];
+                
                 // Empacotamento
                 product_o = {sign_o, exp_o, mant_o[45:23]};
 
                 // Verificação de underflow
-                if (exp_a != ~8'b0 && mant_a != 0 && exp_b != ~8'b0 && mant_b != 0) begin
-                    if (product_o == 32'b0) underflow_o = 1;
-                end
-                if (exp_e < 9'b00000001) begin
+                if (exp_e[9]) begin
                     underflow_o = 1;
                     product_o = {sign_o, 31'b0};
                 end
@@ -136,7 +133,7 @@ always_comb begin
                 if (exp_a == 8'b11111111 && a_i[22:0] == 23'b0|| exp_b == 8'b11111111 && b_i[22:0] == 23'b0) begin
                     infinit_o = 1;
                     product_o = {sign_o, 31'h7FFFFFFF};
-                end else if (exp_e >= 9'b011111110) begin // Verificação de overflow
+                end else if (~exp_e[9] && exp_e > 9'b011111110) begin // Verificação de overflow
                     overflow_o = 1;
                     product_o = {sign_o, 31'h7FFFFFFF};
                 end
