@@ -121,6 +121,10 @@ always_comb begin
                 if (exp_a != ~8'b0 && mant_a != 0 && exp_b != ~8'b0 && mant_b != 0) begin
                     if (product_o == 32'b0) underflow_o = 1;
                 end
+                if (exp_e < 9'b00000001) begin
+                    underflow_o = 1;
+                    product_o = {sign_o, 31'b0};
+                end
                 
                 // Verificação se um dos operandos é zero
                 if(a_i[30:0] == 31'b0 || b_i[30:0] == 31'b0) begin
@@ -132,7 +136,7 @@ always_comb begin
                 if (exp_a == 8'b11111111 && a_i[22:0] == 23'b0|| exp_b == 8'b11111111 && b_i[22:0] == 23'b0) begin
                     infinit_o = 1;
                     product_o = {sign_o, 31'h7FFFFFFF};
-                end else if (exp_e > 9'b011111110) begin // Verificação de overflow
+                end else if (exp_e >= 9'b011111110) begin // Verificação de overflow
                     overflow_o = 1;
                     product_o = {sign_o, 31'h7FFFFFFF};
                 end

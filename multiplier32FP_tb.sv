@@ -23,7 +23,19 @@ module multiplier32FP_tb;
     logic overflow_o;
     logic underflow_o;
 
-    multiplier32FP U1 (.start_i(start_i), .clk(clk), .rst_n(rst_n), .a_i(a_i), .b_i(b_i), .product_o(product_o), .done_o(done_o), .nan_o(nan_o), .infinit_o(infinit_o), .overflow_o(overflow_o), .underflow_o(underflow_o));
+    multiplier32FP U1 (
+                .start_i(start_i), 
+                .clk(clk),
+                .rst_n(rst_n),
+                .a_i(a_i), 
+                .b_i(b_i), 
+                .product_o(product_o), 
+                .done_o(done_o), 
+                .nan_o(nan_o), 
+                .infinit_o(infinit_o), 
+                .overflow_o(overflow_o), 
+                .underflow_o(underflow_o)
+                );
 
     initial begin
         clk = 1;
@@ -62,8 +74,12 @@ module multiplier32FP_tb;
             $display("b_i:       %f", $bitstoshortreal(b_i));
             $display("product_o: %f", $bitstoshortreal(product_o));
             $display("expected:  %f", $bitstoshortreal(res[i]));
-            $display("expected:  %f", shortreal'($bitstoshortreal(a_i)*$bitstoshortreal(b_i)));
             $display("+------------------------------------------------+");
+            if (product_o == res[i]) begin
+                $display("Test case %1d passed", i);
+            end else begin
+                $display("Test case %1d FAILED", i);
+            end
         end
         #1000;
         $finish;

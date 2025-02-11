@@ -55,8 +55,8 @@ module tb_multiplier32FP;
 
         // Teste 1: Multiplicação de 2.5 * 4.0
         #100;
-        a_i = $shortrealtobits(25.0);
-        b_i = $shortrealtobits(10.0);
+        a_i = $shortrealtobits(2.5);
+        b_i = $shortrealtobits(4.0);
         start_i = 1;
         #10;
         start_i = 0;
@@ -90,12 +90,12 @@ module tb_multiplier32FP;
         // Espera a multiplicação terminar
         wait (done_o);
         #10;
-        $display("Resultado: hexa 0x%h decimal %f", product_o, $bitstoshortreal(product_o)); // Esperado: 0xc0400000 (-3 em ponto flutuante IEEE 754)
+        $display("Resultado: hexa 0x%h decimal %f", product_o, $bitstoshortreal(product_o)); // Esperado: 0xc0400000 (-3.0 em ponto flutuante IEEE 754)
 
         // Teste 4: Multiplicação de 0 * 4.0
         #20;
         a_i = $shortrealtobits(0.0);
-        b_i = $shortrealtobits(2.0); 
+        b_i = $shortrealtobits(4.0); 
         start_i = 1;
         #10;
         start_i = 0;
@@ -103,7 +103,7 @@ module tb_multiplier32FP;
         // Espera a multiplicação terminar
         wait (done_o);
         #10;
-        $display("Resultado: hexa 0x%h decimal %f", product_o, $bitstoshortreal(product_o)); // Esperado: 0x00000000 (0 em ponto flutuante IEEE 754)
+        $display("Resultado: hexa 0x%h decimal %f", product_o, $bitstoshortreal(product_o)); // Esperado: 0x00000000 (0.0 em ponto flutuante IEEE 754)
 
         // Teste 5: Multiplicação com *not a number*
         #20;
@@ -116,7 +116,7 @@ module tb_multiplier32FP;
         // Espera a multiplicação terminar
         wait (done_o);
         #10;
-        $display("Resultado: hexa 0x%h decimal %f", product_o, $bitstoshortreal(product_o)); // Esperado: 0x00000000 (0 em ponto flutuante IEEE 754). NaN.
+        $display("Resultado: hexa 0x%h decimal %f", product_o, $bitstoshortreal(product_o)); // Esperado: 0x00000000 (0.0 em ponto flutuante IEEE 754). NaN.
         
         // Teste 6: Multiplicação com número infinito positivo
         #20;
@@ -129,7 +129,7 @@ module tb_multiplier32FP;
         // Espera a multiplicação terminar
         wait (done_o);
         #10;
-        $display("Resultado: hexa 0x%h decimal %f", product_o, $bitstoshortreal(product_o)); // Esperado: 0x7F800000 (número infinito em ponto flutuante IEEE 754). Infinito.
+        $display("Resultado: hexa 0x%h decimal %f", product_o, $bitstoshortreal(product_o)); // Esperado: 0x7FFFFFFF (número infinito positivo NaN em ponto flutuante IEEE 754). Infinito.
         
         // Teste 7: Multiplicação com número infinito negativo
         #20;
@@ -142,7 +142,7 @@ module tb_multiplier32FP;
         // Espera a multiplicação terminar
         wait (done_o);
         #10;
-        $display("Resultado: hexa 0x%h decimal %f", product_o, $bitstoshortreal(product_o)); // Esperado: 0xFF800000 (número infinito em ponto flutuante IEEE 754). Infinito.
+        $display("Resultado: hexa 0x%h decimal %f", product_o, $bitstoshortreal(product_o)); // Esperado: 0xFFFFFFFF (número infinito negativo NaN em ponto flutuante IEEE 754). Infinito.
         
         // Teste 8: Multiplicação com números muito próximos de zero
         #20;
@@ -155,7 +155,7 @@ module tb_multiplier32FP;
         // Espera a multiplicação terminar
         wait (done_o);
         #10;
-        $display("Resultado: hexa 0x%h decimal %f", product_o, $bitstoshortreal(product_o)); // Esperado: 0x00000000 (0 em ponto flutuante IEEE 754). Underflow.
+        $display("Resultado: hexa 0x%h decimal %f", product_o, $bitstoshortreal(product_o)); // Esperado: 0x00000000 (0.0 em ponto flutuante IEEE 754). Underflow.
         
         // Teste 9: Multiplicação com números muito grandes
         #20;
@@ -168,7 +168,7 @@ module tb_multiplier32FP;
         // Espera a multiplicação terminar
         wait (done_o);
         #10;
-        $display("Resultado: hexa 0x%h decimal %f", product_o, $bitstoshortreal(product_o)); // Esperado: 0x7FFFFFFF (infinito, overflow)
+        $display("Resultado: hexa 0x%h decimal %f", product_o, $bitstoshortreal(product_o)); // Esperado: 0x7FFFFFFF (número infinito positivo NaN em ponto flutuante IEEE 754). Overflow.
 
         // Finaliza a simulação
         $finish;
